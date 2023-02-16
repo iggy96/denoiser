@@ -5,23 +5,18 @@ sys.path.insert(1, '/Users/joshuaighalo/Documents/codespace/denoiser/EEGExtract'
 import EEGExtract as feat
 
 path = '/Users/joshuaighalo/Downloads/'
-
 filenameCEEG, filenameEMG, filenameEOG = 'EEG_all_epochs.npy', 'EMG_all_epochs.npy', 'EOG_all_epochs.npy'
 dataCEEG, dataEMG, dataEOG = np.load(path + filenameCEEG), np.load(path + filenameEMG), np.load(path + filenameEOG)
+delta,theta,alpha,beta,gamma = [0.5,4],[4,8],[8,12],[12,30],[30,100]
+fsCEEG, fsEMG, fsEOG = 256, 512, 256
+
+
 dataCEEG = dataCEEG.reshape(1,dataCEEG.shape[1],dataCEEG.shape[0])
 dataEMG = dataEMG.reshape(1,dataEMG.shape[1],dataEMG.shape[0])
 dataEOG = dataEOG.reshape(1,dataEOG.shape[1],dataEOG.shape[0])
 
-## Complexity Features
-
-# Shannon Entropy
-shannonResCEEG = feat.shannonEntropy(dataCEEG, bin_min=-200, bin_max=200, binWidth=2)
-shannonResEMG = feat.shannonEntropy(dataEMG, bin_min=-200, bin_max=200, binWidth=2)
-shannonResEOG = feat.shannonEntropy(dataEOG, bin_min=-200, bin_max=200, binWidth=2)
-
+"""
 # Subband Information Quantity
-delta,theta,alpha,beta,gamma = [0.5,4],[4,8],[8,12],[12,30],[30,100]
-fsCEEG, fsEMG, fsEOG = 256, 512, 256
 deltaCEEG = feat.filt_data(dataCEEG, delta[0], delta[1], fsCEEG)
 thetaCEEG = feat.filt_data(dataCEEG, theta[0], theta[1], fsCEEG)
 alphaCEEG = feat.filt_data(dataCEEG, alpha[0], alpha[1], fsCEEG)
@@ -37,21 +32,11 @@ thetaEOG = feat.filt_data(dataEOG, theta[0], theta[1], fsEOG)
 alphaEOG = feat.filt_data(dataEOG, alpha[0], alpha[1], fsEOG)
 betaEOG = feat.filt_data(dataEOG, beta[0], beta[1], fsEOG)
 gammaEOG = feat.filt_data(dataEOG, gamma[0], gamma[1], fsEOG)
-shannonResDeltaCEEG = feat.shannonEntropy(deltaCEEG, bin_min=-200, bin_max=200, binWidth=2)
-shannonResThetaCEEG = feat.shannonEntropy(thetaCEEG, bin_min=-200, bin_max=200, binWidth=2)
-shannonResAlphaCEEG = feat.shannonEntropy(alphaCEEG, bin_min=-200, bin_max=200, binWidth=2)
-shannonResBetaCEEG = feat.shannonEntropy(betaCEEG, bin_min=-200, bin_max=200, binWidth=2)
-shannonResGammaCEEG = feat.shannonEntropy(gammaCEEG, bin_min=-200, bin_max=200, binWidth=2)
-shannonResDeltaEMG = feat.shannonEntropy(deltaEMG, bin_min=-200, bin_max=200, binWidth=2)
-shannonResThetaEMG = feat.shannonEntropy(thetaEMG, bin_min=-200, bin_max=200, binWidth=2)
-shannonResAlphaEMG = feat.shannonEntropy(alphaEMG, bin_min=-200, bin_max=200, binWidth=2)
-shannonResBetaEMG = feat.shannonEntropy(betaEMG, bin_min=-200, bin_max=200, binWidth=2)
-shannonResGammaEMG = feat.shannonEntropy(gammaEMG, bin_min=-200, bin_max=200, binWidth=2)
-shannonResDeltaEOG = feat.shannonEntropy(deltaEOG, bin_min=-200, bin_max=200, binWidth=2)
-shannonResThetaEOG = feat.shannonEntropy(thetaEOG, bin_min=-200, bin_max=200, binWidth=2)
-shannonResAlphaEOG = feat.shannonEntropy(alphaEOG, bin_min=-200, bin_max=200, binWidth=2)
-shannonResBetaEOG = feat.shannonEntropy(betaEOG, bin_min=-200, bin_max=200, binWidth=2)
-shannonResGammaEOG = feat.shannonEntropy(gammaEOG, bin_min=-200, bin_max=200, binWidth=2)
+
+# Shannon Entropy
+shannonResCEEG = feat.shannonEntropy(dataCEEG, bin_min=-200, bin_max=200, binWidth=2)
+shannonResEMG = feat.shannonEntropy(dataEMG, bin_min=-200, bin_max=200, binWidth=2)
+shannonResEOG = feat.shannonEntropy(dataEOG, bin_min=-200, bin_max=200, binWidth=2)
 
 # Lyapunov Exponent
 LyapunovResCEEG = feat.lyapunov(dataCEEG)
@@ -68,7 +53,6 @@ HjorthMobCEEG, HjorthCompCEEG = feat.hjorthParameters(dataCEEG)
 HjorthMobEMG, HjorthCompEMG = feat.hjorthParameters(dataEMG)
 HjorthMobEOG, HjorthCompEOG = feat.hjorthParameters(dataEOG)
 
-## Category Features
 
 # Median Frequency
 medianFreqResCEEG = feat.medianFreq(dataCEEG, fsCEEG)
@@ -143,171 +127,119 @@ sharpSpike_res_CEEG = feat.shortSpikeNum(dataCEEG,minNumSamples_CEEG)
 sharpSpike_res_EMG = feat.shortSpikeNum(dataEMG,minNumSamples_EMG)
 sharpSpike_res_EOG = feat.shortSpikeNum(dataEOG,minNumSamples_EOG)
 
-## Connectivity Features
-import numpy as np
-from pyentrp import entropy as ent
-import antropy as ant
 
-def sample_entropy(x):
-    def params_sample_entropy(y):
-        return ant.sample_entropy(y)
-    
-    output = []
-    for i in range(x.shape[1]):
-        output.append(params_sample_entropy(x[:,i]))
-    output = np.array(output).T
-    return output
 
-def multiscale_entropy(x):
-    def params_multiscale_entropy(y):
-        return ent.multiscale_entropy(y, 1, 0.1 * np.std(y),1)
-    
-    output = []
-    for i in range(x.shape[1]):
-        output.append(params_multiscale_entropy(x[:,i]))
-    output = np.array(output).T
-    return output
+sampEN_CEEG = feat.sample_entropy(dataCEEG[0])
+sampEN_EMG = feat.sample_entropy(dataEMG[0])
+sampEN_EOG = feat.sample_entropy(dataEOG[0])
+multiscaleEN_CEEG = feat.multiscale_entropy(dataCEEG[0])
+multiscaleEN_EMG = feat.multiscale_entropy(dataEMG[0])
+multiscaleEN_EOG = feat.multiscale_entropy(dataEOG[0])
+permEN_CEEG = feat.permutation_entropy(dataCEEG[0])
+permEN_EMG = feat.permutation_entropy(dataEMG[0])
+permEN_EOG = feat.permutation_entropy(dataEOG[0])
+specEN_CEEG = feat.spectral_entropy(dataCEEG[0],fsCEEG)
+specEN_EMG = feat.spectral_entropy(dataEMG[0],fsEMG)
+specEN_EOG = feat.spectral_entropy(dataEOG[0],fsEOG)
+svdEN_CEEG = feat.svd_entropy(dataCEEG[0])
+svdEN_EMG = feat.svd_entropy(dataEMG[0])
+svdEN_EOG = feat.svd_entropy(dataEOG[0])
+appEN_CEEG = feat.app_entropy(dataCEEG[0])
+appEN_EMG = feat.app_entropy(dataEMG[0])
+appEN_EOG = feat.app_entropy(dataEOG[0])
+lziv_CEEG = feat.lziv(dataCEEG[0])
+lziv_EMG = feat.lziv(dataEMG[0])
+lziv_EOG = feat.lziv(dataEOG[0])
+petrosian_CEEG = feat.petrosian(dataCEEG[0])
+petrosian_EMG = feat.petrosian(dataEMG[0])
+petrosian_EOG = feat.petrosian(dataEOG[0])
+katz_CEEG = feat.katz(dataCEEG[0])
+katz_EMG = feat.katz(dataEMG[0])
+katz_EOG = feat.katz(dataEOG[0])
+dfa_CEEG = feat.dfa(dataCEEG[0])
+dfa_EMG = feat.dfa(dataEMG[0])
+dfa_EOG = feat.dfa(dataEOG[0])
 
-def permutation_entropy(x):
-    def params_permutation_entropy(y):
-        return ant.perm_entropy(y, normalize=True)
-    
-    output = []
-    for i in range(x.shape[1]):
-        output.append(params_permutation_entropy(x[:,i]))
-    output = np.array(output).T
-    return output
 
-def spectral_entropy(x,fs):
-    def params_spectral_entropy(y,fs):
-        return ant.spectral_entropy(y, fs, method='welch', normalize=True)
-    
-    output = []
-    for i in range(x.shape[1]):
-        output.append(params_spectral_entropy(x[:,i],fs))
-    output = np.array(output).T
-    return output
+## Spectral Features
 
-def svd_entropy(x):
-    def params_svd_entropy(y):
-        return ant.svd_entropy(y, normalize=True)
-    
-    output = []
-    for i in range(x.shape[1]):
-        output.append(params_svd_entropy(x[:,i]))
-    output = np.array(output).T
-    return output
+# Shannon Entropy
+shannonResDeltaCEEG = feat.shannonEntropy(deltaCEEG, bin_min=-200, bin_max=200, binWidth=2)
+shannonResThetaCEEG = feat.shannonEntropy(thetaCEEG, bin_min=-200, bin_max=200, binWidth=2)
+shannonResAlphaCEEG = feat.shannonEntropy(alphaCEEG, bin_min=-200, bin_max=200, binWidth=2)
+shannonResBetaCEEG = feat.shannonEntropy(betaCEEG, bin_min=-200, bin_max=200, binWidth=2)
+shannonResGammaCEEG = feat.shannonEntropy(gammaCEEG, bin_min=-200, bin_max=200, binWidth=2)
 
-def app_entropy(x):
-    def params_app_entropy(y):
-        return ant.app_entropy(y)
-    
-    output = []
-    for i in range(x.shape[1]):
-        output.append(params_app_entropy(x[:,i]))
-    output = np.array(output).T
-    return output
+shannonResDeltaEMG = feat.shannonEntropy(deltaEMG, bin_min=-200, bin_max=200, binWidth=2)
+shannonResThetaEMG = feat.shannonEntropy(thetaEMG, bin_min=-200, bin_max=200, binWidth=2)
+shannonResAlphaEMG = feat.shannonEntropy(alphaEMG, bin_min=-200, bin_max=200, binWidth=2)
+shannonResBetaEMG = feat.shannonEntropy(betaEMG, bin_min=-200, bin_max=200, binWidth=2)
+shannonResGammaEMG = feat.shannonEntropy(gammaEMG, bin_min=-200, bin_max=200, binWidth=2)
 
-def hjorth(x):
-    def params_hjorth(y):
-        return ant.hjorth_params(y)
-    
-    output = []
-    for i in range(x.shape[1]):
-        output.append(params_hjorth(x[:,i]))
-    output = np.array(output).T
-    return output
+shannonResDeltaEOG = feat.shannonEntropy(deltaEOG, bin_min=-200, bin_max=200, binWidth=2)
+shannonResThetaEOG = feat.shannonEntropy(thetaEOG, bin_min=-200, bin_max=200, binWidth=2)
+shannonResAlphaEOG = feat.shannonEntropy(alphaEOG, bin_min=-200, bin_max=200, binWidth=2)
+shannonResBetaEOG = feat.shannonEntropy(betaEOG, bin_min=-200, bin_max=200, binWidth=2)
+shannonResGammaEOG = feat.shannonEntropy(gammaEOG, bin_min=-200, bin_max=200, binWidth=2)
 
-def zcr(x):
-    def params_zcr(y):
-        return ant.num_zerocross(x)
-    
-    output = []
-    for i in range(x.shape[1]):
-        output.append(params_zcr(x[:,i]))
-    output = np.array(output).T
-    output = np.mean(output,axis=1)
-    return output
+# Lyapunov Exponent
+lyapunovResDeltaCEEG = feat.lyapunov(deltaCEEG)
+lyapunovResThetaCEEG = feat.lyapunov(thetaCEEG)
+lyapunovResAlphaCEEG = feat.lyapunov(alphaCEEG)
+lyapunovResBetaCEEG = feat.lyapunov(betaCEEG)
+lyapunovResGammaCEEG = feat.lyapunov(gammaCEEG)
 
-def lziv(x):
-    def params_lziv(y):
-        return ant.lziv_complexity(y)
-    
-    output = []
-    for i in range(x.shape[1]):
-        output.append(params_lziv(x[:,i]))
-    output = np.array(output).T
-    return output
+lyapunovResDeltaEMG = feat.lyapunov(deltaEMG)
+lyapunovResThetaEMG = feat.lyapunov(thetaEMG)
+lyapunovResAlphaEMG = feat.lyapunov(alphaEMG)
+lyapunovResBetaEMG = feat.lyapunov(betaEMG)
+lyapunovResGammaEMG = feat.lyapunov(gammaEMG)
 
-def petrosian(x):
-    def params_petrosian(y):
-        return ant.petrosian_fd(y)
-    
-    output = []
-    for i in range(x.shape[1]):
-        output.append(params_petrosian(x[:,i]))
-    output = np.array(output).T
-    return output
+lyapunovResDeltaEOG = feat.lyapunov(deltaEOG)
+lyapunovResThetaEOG = feat.lyapunov(thetaEOG)
+lyapunovResAlphaEOG = feat.lyapunov(alphaEOG)
+lyapunovResBetaEOG = feat.lyapunov(betaEOG)
+lyapunovResGammaEOG = feat.lyapunov(gammaEOG)
 
-def katz(x):
-    def params_katz(y):
-        return ant.katz_fd(y)
-    
-    output = []
-    for i in range(x.shape[1]):
-        output.append(params_katz(x[:,i]))
-    output = np.array(output).T
-    return output
+# Fractal Embedding Dimension
+HiguchiFD_Res_DeltaCEEG = feat.hFD(deltaCEEG,3)
+HiguchiFD_Res_ThetaCEEG = feat.hFD(thetaCEEG,3)
+HiguchiFD_Res_AlphaCEEG = feat.hFD(alphaCEEG,3)
+HiguchiFD_Res_BetaCEEG = feat.hFD(betaCEEG,3)
+HiguchiFD_Res_GammaCEEG = feat.hFD(gammaCEEG,3)
 
-def dfa(x):
-    def params_dfa(y):
-        return ant.detrended_fluctuation(y)
-    
-    output = []
-    for i in range(x.shape[1]):
-        output.append(params_dfa(x[:,i]))
-    output = np.array(output).T
-    return output
+HiguchiFD_Res_DeltaEMG = feat.hFD(deltaEMG,3)
+HiguchiFD_Res_ThetaEMG = feat.hFD(thetaEMG,3)
+HiguchiFD_Res_AlphaEMG = feat.hFD(alphaEMG,3)
+HiguchiFD_Res_BetaEMG = feat.hFD(betaEMG,3)
+HiguchiFD_Res_GammaEMG = feat.hFD(gammaEMG,3)
+
+HiguchiFD_Res_DeltaEOG = feat.hFD(deltaEOG,3)
+HiguchiFD_Res_ThetaEOG = feat.hFD(thetaEOG,3)
+HiguchiFD_Res_AlphaEOG = feat.hFD(alphaEOG,3)
+HiguchiFD_Res_BetaEOG = feat.hFD(betaEOG,3)
+HiguchiFD_Res_GammaEOG = feat.hFD(gammaEOG,3)
+
+# Hjorth Mobility & Hjorth Complexity
+HjorthMobDeltaCEEG,HjorthCompDeltaCEEG = feat.hjorthParameters(deltaCEEG)
+HjorthMobThetaCEEG,HjorthCompThetaCEEG = feat.hjorthParameters(thetaCEEG)
+HjorthMobAlphaCEEG,HjorthCompAlphaCEEG = feat.hjorthParameters(alphaCEEG)
+HjorthMobBetaCEEG,HjorthCompBetaCEEG = feat.hjorthParameters(betaCEEG)
+HjorthMobGammaCEEG,HjorthCompGammaCEEG = feat.hjorthParameters(gammaCEEG)
+
+HjorthMobDeltaEMG,HjorthCompDeltaEMG = feat.hjorthParameters(deltaEMG)
+HjorthMobThetaEMG,HjorthCompThetaEMG = feat.hjorthParameters(thetaEMG)
+HjorthMobAlphaEMG,HjorthCompAlphaEMG = feat.hjorthParameters(alphaEMG)
+HjorthMobBetaEMG,HjorthCompBetaEMG = feat.hjorthParameters(betaEMG)
+"""
 
 
 
-sampEN_CEEG = sample_entropy(dataCEEG[0])
-sampEN_EMG = sample_entropy(dataEMG[0])
-sampEN_EOG = sample_entropy(dataEOG[0])
-multiscaleEN_CEEG = multiscale_entropy(dataCEEG[0])
-multiscaleEN_EMG = multiscale_entropy(dataEMG[0])
-multiscaleEN_EOG = multiscale_entropy(dataEOG[0])
-permEN_CEEG = permutation_entropy(dataCEEG[0])
-permEN_EMG = permutation_entropy(dataEMG[0])
-permEN_EOG = permutation_entropy(dataEOG[0])
-specEN_CEEG = spectral_entropy(dataCEEG[0],fsCEEG)
-specEN_EMG = spectral_entropy(dataEMG[0],fsEMG)
-specEN_EOG = spectral_entropy(dataEOG[0],fsEOG)
-svdEN_CEEG = svd_entropy(dataCEEG[0])
-svdEN_EMG = svd_entropy(dataEMG[0])
-svdEN_EOG = svd_entropy(dataEOG[0])
-appEN_CEEG = app_entropy(dataCEEG[0])
-appEN_EMG = app_entropy(dataEMG[0])
-appEN_EOG = app_entropy(dataEOG[0])
-hjorth_CEEG = hjorth(dataCEEG[0])
-hjorth_EMG = hjorth(dataEMG[0])
-hjorth_EOG = hjorth(dataEOG[0])
-zcr_CEEG = zcr(dataCEEG[0])
-zcr_EMG = zcr(dataEMG[0])
-zcr_EOG = zcr(dataEOG[0])
-lziv_CEEG = lziv(dataCEEG[0])
-lziv_EMG = lziv(dataEMG[0])
-lziv_EOG = lziv(dataEOG[0])
-petrosian_CEEG = petrosian(dataCEEG[0])
-petrosian_EMG = petrosian(dataEMG[0])
-petrosian_EOG = petrosian(dataEOG[0])
-katz_CEEG = katz(dataCEEG[0])
-katz_EMG = katz(dataEMG[0])
-katz_EOG = katz(dataEOG[0])
-dfa_CEEG = dfa(dataCEEG[0])
-dfa_EMG = dfa(dataEMG[0])
-dfa_EOG = dfa(dataEOG[0])
 
 
 
+
+test = feat.compile_features(dataCEEG,fs=256,delta=[0.5,4],theta=[4,8],
+                             alpha=[8,12],beta=[12,30],gamma=[30,50],
+                             data_name='CEEG')
 
