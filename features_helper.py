@@ -65,6 +65,7 @@ def resample_eeg(eeg_data, old_sampling_rate, new_sampling_rate):
     for channel in range(num_channels):
         resampled_data[channel, :] = signal.resample(eeg_data[channel, :], num_samples_new)
 
+    resampled_data = resampled_data.reshape(1,resampled_data.shape[1],resampled_data.shape[0])
     return resampled_data
 
 ##########
@@ -701,7 +702,7 @@ def compile_features(data,fs,delta,theta,alpha,beta,gamma,data_name,label):
     dfa_beta = dfa(beta_data[0])
     dfa_gamma = dfa(gamma_data[0])
     
-    label = np.array(['clean' for i in range(len(shannonRes))])
+    label = np.array([label for i in range(len(shannonRes))])
 
 
     # print shape of all the features
