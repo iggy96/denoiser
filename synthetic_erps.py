@@ -76,8 +76,6 @@ plt.title('Synthetic ERP Waveform with Alpha Oscillations')
 plt.show()
 
 
-
-#emd
 #%%
 # use EMD to decompose the signal into its components
 import emd
