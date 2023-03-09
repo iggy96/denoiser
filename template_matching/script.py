@@ -90,3 +90,17 @@ plt.show()
 plt.plot(segments[7])
 plt.gca().invert_yaxis()
 plt.show()
+
+
+
+
+
+from fastdtw import fastdtw
+from scipy.spatial.distance import euclidean
+
+distance, path = fastdtw(template_erp, contaminated_erp, dist=euclidean)
+
+print(distance)
+print(path)
+
+

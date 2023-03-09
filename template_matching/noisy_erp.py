@@ -41,7 +41,7 @@ alpha = alpha_oscillation(t, amplitude_alpha, frequency_alpha)
 
 # Add the alpha oscillations to the ERP waveform
 y += alpha
-contaminated_erp = y.reshape(len(y))
+contaminated_erp = y.reshape(len(y),1)
 
 # Plot the ERP waveform with alpha oscillations
 plt.plot(t, contaminated_erp)

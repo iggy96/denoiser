@@ -37,19 +37,28 @@ def fast_n200(t, amplitude_n200):
 
 # Generate the ERP waveform
 template_erp = fast_p100(t, amplitude_p100) + fast_p200(t, amplitude_p200) + slow_p300(t, amplitude_p300) + fast_n100(t, amplitude_n100) + fast_n200(t, amplitude_n200)
-
+template_erp = template_erp.reshape(len(template_erp),1)
 
 # Plot the ERP waveform
 plt.plot(t,template_erp)
 plt.xlabel('Time (s)')
 plt.ylabel('Amplitude')
 plt.gca().invert_yaxis()
-plt.title('Synthetic ERP Waveform with Slow P300 and Fast N100')
+plt.title('Template ERP Waveform with Slow P300 and Fast N100')
 plt.axvline(x=0, color='k', linestyle='--')
 plt.xticks(np.arange(0, 0.9, 0.1))
 plt.axhline(y=0, color='k', linestyle='-')
 plt.show()
 
-# N1 segment
-N1 = template_erp[44:57]
-P3 = template_erp[89:172]
+curveN1 = template_erp[44:57]
+curveP3 = template_erp[89:172]
+peakN1 = np.amin(template_erp)
+peakP3 = np.amax(template_erp)
+idx_peakN1 = np.where(template_erp==peakN1)[0]
+idx_peakP3 = np.where(template_erp==peakP3)[0]
+print("template ERP N1 amplitude:",np.amin(template_erp))
+print("template ERP N1 index:",np.where(template_erp==peakN1)[0])
+print("template ERP N1 latency:",t[np.where(template_erp==peakN1)[0]])
+print("template ERP P3 amplitude:",np.amax(template_erp))
+print("template ERP P3 index:",np.where(template_erp==peakP3)[0])
+print("template ERP P3 latency:",t[np.where(template_erp==peakP3)[0]])
