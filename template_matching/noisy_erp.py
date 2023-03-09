@@ -33,8 +33,8 @@ def alpha_oscillation(t, amplitude_alpha, frequency_alpha):
 
 
 # Set the amplitude and frequency of the alpha oscillations
-amplitude_alpha = 2
-frequency_alpha = 10
+amplitude_alpha = 6
+frequency_alpha = 14
 
 # Generate the alpha oscillations
 alpha = alpha_oscillation(t, amplitude_alpha, frequency_alpha)
